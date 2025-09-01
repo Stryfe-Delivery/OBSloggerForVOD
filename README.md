@@ -2,14 +2,13 @@
 log timestamps of scenes to cut to ease VOD editing. when streaming and saving vods for youtube it's helpful to be able to cut out ads, raids, etc. which are often associated with scene changes. Changing the scene creates a timestamped event and you can easily trim down just to the main scenes you want. 
 
 to install: <br>
-save file to C:\ProgramFiles\obs-studio\data\obs-plugins\frontend-tools\scripts (or appropriate path) <br>
+    save file to C:\ProgramFiles\obs-studio\data\obs-plugins\frontend-tools\scripts (or appropriate path) <br>
 to run:<br>
     Open OBS <br>
     Go to Tools > Scripts <br>
     Click + to add a new Lua script and select the file from this repo<br>
-
 to view:<br>
-open directory hard coded in file (change as needed)
+    open directory hard coded in file (change as needed)
 
 Since Lua in OBS cannot directly capture keyboard events, you need an external tool (like AutoHotkey) to listen for the Escape key and log it to the same file. <br>
     Install AutoHotkey from here. <br>
