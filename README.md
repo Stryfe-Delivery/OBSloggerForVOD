@@ -20,3 +20,4 @@ Notes:<br>
   You will need to run both scripts (OBS Lua script and AutoHotkey) simultaneously during your stream to capture both scene transitions and key presses. <br>
   if AHK doesnt run, the LUA will still run fine it just wont capture those keypress events <br>
   The log file will be appended with each event, so you can review it later to track what happened during the stream.<br>
+  For video editing, it is best to start with the last event and trim towards the start of the video to keep things in sync
