@@ -21,3 +21,12 @@ Notes:<br>
   if AHK doesnt run, the LUA will still run fine it just wont capture those keypress events <br>
   The log file will be appended with each event, so you can review it later to track what happened during the stream.<br>
   For video editing, it is best to start with the last event and trim towards the start of the video to keep things in sync
+
+
+
+<b>Example output</b><br>
+2023-11-15 14:30:25 - Streaming started<br>
+2023-11-15 14:30:32 (Relative: 00:00:07) - Scene changed to: Game Scene<br>
+2023-11-15 14:30:45 (Relative: 00:00:20) - Escape key pressed<br>
+2023-11-15 14:31:10 (Relative: 00:00:45) - Scene changed to: Intermission<br>
+2023-11-15 14:35:22 (Relative: 00:04:57) - Streaming stopped<br>
