@@ -1,11 +1,13 @@
 obs = obslua
 
+-- Configuration
 log_file_path = "D:/obslogs/scene_key_log.txt"  -- Update this path
--- if this path is missing the file may not be generated
+-- note this path may need to be manually generated to allow write
 
--- Hotkey ID and data structure
+-- Internal state
+stream_start_time = nil
+record_start_time = nil
 hotkey_id = obs.OBS_INVALID_HOTKEY_ID
-escape_pressed_callback = nil
 
 -- Function to write to the log file
 function write_to_log(message)
@@ -16,14 +18,60 @@ function write_to_log(message)
     end
 end
 
+-- Function to format time difference
+function format_time_diff(seconds)
+    if not seconds then return "N/A" end
+    
+    local hours = math.floor(seconds / 3600)
+    local minutes = math.floor((seconds % 3600) / 60)
+    local secs = math.floor(seconds % 60)
+    
+    return string.format("%02d:%02d:%02d", hours, minutes, secs)
+end
+
+-- Function to get relative time since streaming/recording started
+function get_relative_time()
+    local current_time = os.time()
+    
+    if stream_start_time then
+        return current_time - stream_start_time
+    elseif record_start_time then
+        return current_time - record_start_time
+    end
+    
+    return nil
+end
+
 -- Function to log scene changes
 function on_event(event)
+    local time = os.date("%Y-%m-%d %H:%M:%S")
+    local relative_time = get_relative_time()
+    
     if event == obs.OBS_FRONTEND_EVENT_SCENE_CHANGED then
-        local time = os.date("%Y-%m-%d %H:%M:%S")
         local scene = obs.obs_frontend_get_current_scene()
         local scene_name = obs.obs_source_get_name(scene)
         obs.obs_source_release(scene)
-        write_to_log(time .. " - Scene changed to: " .. scene_name)
+        
+        write_to_log(string.format("%s (Relative: %s) - Scene changed to: %s", 
+                                  time, format_time_diff(relative_time), scene_name))
+    
+    elseif event == obs.OBS_FRONTEND_EVENT_STREAMING_STARTED then
+        stream_start_time = os.time()
+        write_to_log(string.format("%s - Streaming started", time))
+        
+    elseif event == obs.OBS_FRONTEND_EVENT_STREAMING_STOPPED then
+        write_to_log(string.format("%s (Relative: %s) - Streaming stopped", 
+                                  time, format_time_diff(get_relative_time())))
+        stream_start_time = nil
+        
+    elseif event == obs.OBS_FRONTEND_EVENT_RECORDING_STARTED then
+        record_start_time = os.time()
+        write_to_log(string.format("%s - Recording started", time))
+        
+    elseif event == obs.OBS_FRONTEND_EVENT_RECORDING_STOPPED then
+        write_to_log(string.format("%s (Relative: %s) - Recording stopped", 
+                                  time, format_time_diff(get_relative_time())))
+        record_start_time = nil
     end
 end
 
@@ -31,7 +79,10 @@ end
 function on_escape_pressed(pressed)
     if pressed then
         local time = os.date("%Y-%m-%d %H:%M:%S")
-        write_to_log(time .. " - Escape key pressed")
+        local relative_time = get_relative_time()
+        
+        write_to_log(string.format("%s (Relative: %s) - Escape key pressed", 
+                                  time, format_time_diff(relative_time)))
     end
 end
 
@@ -44,7 +95,7 @@ end
 
 -- Load hotkey configuration
 function script_load(settings)
-    -- Register scene change callback
+    -- Register event callbacks
     obs.obs_frontend_add_event_callback(on_event)
     
     -- Register Escape key hotkey
@@ -67,8 +118,7 @@ end
 
 -- Description shown in OBS
 function script_description()
-    return "Logs scene changes and Escape key presses to a text file. " ..
-           "Assign a hotkey in OBS Settings to capture the Escape key."
+    return "Logs scene changes and Escape key presses with timestamps relative to streaming/recording start."
 end
 
 -- No continuous update needed
